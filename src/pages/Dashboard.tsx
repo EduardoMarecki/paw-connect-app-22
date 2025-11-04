@@ -81,6 +81,12 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-muted-foreground">Olá, {userProfile?.full_name}</span>
+            <Button variant="outline" size="sm" onClick={() => navigate("/caregiver/profile")}>
+              Perfil Cuidador
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/search")}>
+              Buscar Cuidadores
+            </Button>
             <Button variant="ghost" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Sair

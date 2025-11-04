@@ -112,10 +112,13 @@ export type Database = {
       pet_caregivers: {
         Row: {
           accepts_pet_sizes: Database["public"]["Enums"]["pet_size"][] | null
+          address: string | null
           available_services:
             | Database["public"]["Enums"]["service_type"][]
             | null
           background_check_date: string | null
+          bio: string | null
+          city: string | null
           created_at: string | null
           experience_years: number | null
           has_yard: boolean | null
@@ -125,6 +128,7 @@ export type Database = {
           price_per_day: number | null
           price_per_walk: number | null
           rating: number | null
+          state: string | null
           total_reviews: number | null
           updated_at: string | null
           user_id: string
@@ -132,10 +136,13 @@ export type Database = {
         }
         Insert: {
           accepts_pet_sizes?: Database["public"]["Enums"]["pet_size"][] | null
+          address?: string | null
           available_services?:
             | Database["public"]["Enums"]["service_type"][]
             | null
           background_check_date?: string | null
+          bio?: string | null
+          city?: string | null
           created_at?: string | null
           experience_years?: number | null
           has_yard?: boolean | null
@@ -145,6 +152,7 @@ export type Database = {
           price_per_day?: number | null
           price_per_walk?: number | null
           rating?: number | null
+          state?: string | null
           total_reviews?: number | null
           updated_at?: string | null
           user_id: string
@@ -152,10 +160,13 @@ export type Database = {
         }
         Update: {
           accepts_pet_sizes?: Database["public"]["Enums"]["pet_size"][] | null
+          address?: string | null
           available_services?:
             | Database["public"]["Enums"]["service_type"][]
             | null
           background_check_date?: string | null
+          bio?: string | null
+          city?: string | null
           created_at?: string | null
           experience_years?: number | null
           has_yard?: boolean | null
@@ -165,6 +176,7 @@ export type Database = {
           price_per_day?: number | null
           price_per_walk?: number | null
           rating?: number | null
+          state?: string | null
           total_reviews?: number | null
           updated_at?: string | null
           user_id?: string
