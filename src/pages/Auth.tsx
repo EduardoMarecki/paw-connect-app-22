@@ -14,6 +14,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState<"tutor" | "cuidador">("tutor");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -32,6 +34,8 @@ export default function Auth() {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
+            phone: phone,
+            role: role,
           },
         },
       });
@@ -153,6 +157,17 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="signup-phone">Telefone</Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="(00) 00000-0000"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
@@ -174,6 +189,41 @@ export default function Auth() {
                       required
                       minLength={6}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Eu sou:</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setRole("tutor")}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          role === "tutor"
+                            ? "border-primary bg-primary/10 text-primary font-semibold"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="text-2xl mb-1">🐕</div>
+                          <div>Tutor</div>
+                          <div className="text-xs opacity-70">Tenho pets</div>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRole("cuidador")}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          role === "cuidador"
+                            ? "border-primary bg-primary/10 text-primary font-semibold"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="text-2xl mb-1">❤️</div>
+                          <div>Cuidador</div>
+                          <div className="text-xs opacity-70">Cuido de pets</div>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Criando conta..." : "Criar Conta"}
