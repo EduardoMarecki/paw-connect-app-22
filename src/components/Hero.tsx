@@ -1,0 +1,73 @@
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
+import heroImage from "@/assets/hero-image.jpg";
+
+export const Hero = () => {
+  return (
+    <section className="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-b from-background via-primary/5 to-background">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 animate-fadeIn">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium">
+              <Heart className="h-4 w-4" />
+              <span>Cuidadores verificados e confiáveis</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+              Seu pet merece o
+              <span className="block bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+                melhor cuidado
+              </span>
+            </h1>
+            
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Conecte-se com cuidadores experientes e apaixonados por animais. 
+              Hospedagem, passeios, visitas e muito mais para o seu melhor amigo.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link to="/auth">
+                <Button size="lg" variant="hero" className="w-full sm:w-auto group">
+                  Encontrar um Cuidador
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Quero ser Cuidador
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="flex items-center gap-8 pt-6 text-sm">
+              <div>
+                <div className="text-2xl font-bold text-primary">500+</div>
+                <div className="text-muted-foreground">Cuidadores</div>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div>
+                <div className="text-2xl font-bold text-primary">2.5k+</div>
+                <div className="text-muted-foreground">Pets Felizes</div>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div>
+                <div className="text-2xl font-bold text-primary">4.9</div>
+                <div className="text-muted-foreground">Avaliação</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+            <img 
+              src={heroImage} 
+              alt="Família feliz com seus pets" 
+              className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
