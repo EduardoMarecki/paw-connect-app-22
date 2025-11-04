@@ -58,7 +58,7 @@ const SearchCaregivers = () => {
     try {
       let query = supabase
         .from("pet_caregivers")
-        .select("*")
+        .select("*, profiles!inner(id, full_name, avatar_url)")
         .eq("verified", true);
 
       if (filters.city) {
@@ -81,27 +81,14 @@ const SearchCaregivers = () => {
 
       if (error) throw error;
 
-      // Fetch profiles separately
-      const userIds = data?.map(c => c.user_id) || [];
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", userIds);
-
-      // Merge profiles with caregivers
-      const caregiversWithProfiles = data?.map((c: any) => ({
-        ...c,
-        profiles: profilesData?.find(p => p.id === c.user_id) || { full_name: "", avatar_url: null }
-      })) || [];
-
       // Filter by price on client side
-      const filtered = caregiversWithProfiles.filter((c: any) => {
+      const filtered = data?.filter((c: any) => {
         const maxPrice = Math.max(
           c.price_per_day || 0,
           c.price_per_walk || 0
         );
         return maxPrice <= filters.maxPrice;
-      });
+      }) || [];
 
       setCaregivers(filtered as any);
     } catch (error) {
@@ -152,13 +139,13 @@ const SearchCaregivers = () => {
                 <Label htmlFor="service">Tipo de Serviço</Label>
                 <Select
                   value={filters.service}
-                  onValueChange={(value) => setFilters({ ...filters, service: value })}
+                  onValueChange={(value) => setFilters({ ...filters, service: value === "all" ? "" : value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder="Todos os serviços" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     <SelectItem value="hospedagem">Hospedagem</SelectItem>
                     <SelectItem value="passeio">Passeio</SelectItem>
                     <SelectItem value="visita_diaria">Visita Diária</SelectItem>
