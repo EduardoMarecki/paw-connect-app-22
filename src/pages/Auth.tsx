@@ -70,7 +70,7 @@ export default function Auth() {
         description: "Login realizado com sucesso.",
       });
       
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
