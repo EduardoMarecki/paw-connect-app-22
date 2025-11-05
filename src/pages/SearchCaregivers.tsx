@@ -58,7 +58,7 @@ const SearchCaregivers = () => {
     try {
       let query = supabase
         .from("pet_caregivers")
-        .select("*, profiles!inner(id, full_name, avatar_url)")
+        .select("*, profiles!inner(id, full_name, avatar_url, bio, city, state)")
         .eq("verified", true);
 
       if (filters.city) {

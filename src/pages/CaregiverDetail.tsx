@@ -46,7 +46,7 @@ const CaregiverDetail = () => {
     try {
       const { data, error } = await supabase
         .from("pet_caregivers")
-        .select("*")
+        .select("*, profiles!inner(id, full_name, avatar_url, bio, city, state)")
         .eq("id", id)
         .single();
 
