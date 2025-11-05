@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 type CaregiverDetail = {
   id: string;
+  user_id: string;
   bio: string | null;
   city: string | null;
   state: string | null;
@@ -36,6 +37,7 @@ const CaregiverDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [caregiver, setCaregiver] = useState<CaregiverDetail | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,6 +66,19 @@ const CaregiverDetail = () => {
         ...data,
         profiles: profileData || { full_name: "", avatar_url: null, phone: null }
       } as any);
+
+      // Load reviews
+      const { data: reviewsData } = await supabase
+        .from("reviews")
+        .select(`
+          *,
+          profiles!reviews_reviewer_id_fkey(full_name, avatar_url)
+        `)
+        .eq("reviewed_id", data.user_id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      setReviews(reviewsData || []);
     } catch (error) {
       console.error("Error loading caregiver:", error);
       toast.error("Erro ao carregar perfil do cuidador");
@@ -243,18 +258,75 @@ const CaregiverDetail = () => {
 
           <Separator className="my-6" />
 
-          <div className="flex gap-4">
-            <Button 
-              size="lg" 
-              className="flex-1"
-              onClick={() => navigate(`/booking/request/${id}`)}
-            >
-              Solicitar Serviço
-            </Button>
-            <Button size="lg" variant="outline" className="flex-1">
-              Enviar Mensagem
-            </Button>
-          </div>
+          <Button 
+            size="lg" 
+            className="w-full"
+            onClick={() => navigate(`/booking/request/${id}`)}
+          >
+            Solicitar Serviço
+          </Button>
+        </Card>
+
+        {/* Reviews Section */}
+        <Card className="p-8 mt-6">
+          <h2 className="text-2xl font-bold mb-6">
+            Avaliações ({reviews.length})
+          </h2>
+          
+          {reviews.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">
+              Ainda não há avaliações para este cuidador
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="border-b pb-6 last:border-0">
+                  <div className="flex items-start gap-4">
+                    {review.profiles?.avatar_url ? (
+                      <img
+                        src={review.profiles.avatar_url}
+                        alt={review.profiles.full_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        {review.profiles?.full_name?.charAt(0) || "?"}
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-semibold">
+                          {review.profiles?.full_name || "Usuário"}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < review.rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {new Date(review.created_at).toLocaleDateString("pt-BR", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                      {review.comment && (
+                        <p className="text-muted-foreground">{review.comment}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     </div>

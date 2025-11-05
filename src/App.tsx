@@ -11,6 +11,8 @@ import CaregiverProfile from "./pages/CaregiverProfile";
 import SearchCaregivers from "./pages/SearchCaregivers";
 import CaregiverDetail from "./pages/CaregiverDetail";
 import BookingRequest from "./pages/BookingRequest";
+import Chat from "./pages/Chat";
+import Review from "./pages/Review";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
           <Route path="/search" element={<SearchCaregivers />} />
           <Route path="/caregivers/:id" element={<CaregiverDetail />} />
           <Route path="/booking/request/:caregiverId" element={<BookingRequest />} />
+          <Route path="/chat/:bookingId" element={<Chat />} />
+          <Route path="/review/:bookingId" element={<Review />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

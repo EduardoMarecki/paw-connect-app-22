@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, PawPrint, LogOut, Calendar, Clock } from "lucide-react";
+import { Plus, PawPrint, LogOut, Calendar, Clock, MessageCircle, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -255,13 +255,26 @@ const Dashboard = () => {
                       <p className="font-semibold">
                         Total: R$ {Number(booking.total_price).toFixed(2)}
                       </p>
-                      {booking.status === "pendente" && (
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            Cancelar
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/chat/${booking.id}`)}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          Chat
+                        </Button>
+                        {booking.status === "concluido" && booking.tutor_id === userProfile?.full_name && (
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => navigate(`/review/${booking.id}`)}
+                          >
+                            <Star className="h-4 w-4 mr-1" />
+                            Avaliar
                           </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </Card>
                 ))}
