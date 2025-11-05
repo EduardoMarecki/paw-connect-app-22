@@ -10,6 +10,7 @@ import PetForm from "./pages/PetForm";
 import CaregiverProfile from "./pages/CaregiverProfile";
 import SearchCaregivers from "./pages/SearchCaregivers";
 import CaregiverDetail from "./pages/CaregiverDetail";
+import BookingRequest from "./pages/BookingRequest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/caregiver/profile" element={<CaregiverProfile />} />
           <Route path="/search" element={<SearchCaregivers />} />
           <Route path="/caregivers/:id" element={<CaregiverDetail />} />
+          <Route path="/booking/request/:caregiverId" element={<BookingRequest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

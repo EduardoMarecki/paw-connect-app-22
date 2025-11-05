@@ -56,9 +56,10 @@ const SearchCaregivers = () => {
   const searchCaregivers = async () => {
     setLoading(true);
     try {
+      // SECURITY: Only select safe public fields (no phone, full_name, bio, address)
       let query = supabase
         .from("pet_caregivers")
-        .select("*, profiles!inner(id, full_name, avatar_url, bio, city, state)")
+        .select("id, user_id, city, state, experience_years, verified, accepts_pet_sizes, has_yard, max_pets_at_once, price_per_day, price_per_walk, available_services, rating, total_reviews, home_type, profiles!inner(id, avatar_url)")
         .eq("verified", true);
 
       if (filters.city) {
@@ -207,12 +208,12 @@ const SearchCaregivers = () => {
                         {caregiver.profiles.avatar_url ? (
                           <img
                             src={caregiver.profiles.avatar_url}
-                            alt={caregiver.profiles.full_name}
+                            alt="Pet Sitter"
                             className="w-24 h-24 rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                            {caregiver.profiles.full_name.charAt(0)}
+                            🐾
                           </div>
                         )}
                       </div>
@@ -220,7 +221,7 @@ const SearchCaregivers = () => {
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="text-xl font-bold">{caregiver.profiles.full_name}</h3>
+                            <h3 className="text-xl font-bold">Pet Sitter Verificado</h3>
                             <div className="flex items-center gap-2 text-muted-foreground mt-1">
                               <MapPin className="h-4 w-4" />
                               <span>

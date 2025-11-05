@@ -44,11 +44,12 @@ const CaregiverDetail = () => {
 
   const loadCaregiver = async () => {
     try {
+      // SECURITY: Only select safe public fields (no phone, address)
       const { data, error } = await supabase
         .from("pet_caregivers")
-        .select("*, profiles!inner(id, full_name, avatar_url, bio, city, state)")
+        .select("id, user_id, bio, city, state, experience_years, verified, accepts_pet_sizes, has_yard, max_pets_at_once, price_per_day, price_per_walk, available_services, rating, total_reviews, home_type, profiles!inner(id, full_name, avatar_url)")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -243,7 +244,11 @@ const CaregiverDetail = () => {
           <Separator className="my-6" />
 
           <div className="flex gap-4">
-            <Button size="lg" className="flex-1">
+            <Button 
+              size="lg" 
+              className="flex-1"
+              onClick={() => navigate(`/booking/request/${id}`)}
+            >
               Solicitar Serviço
             </Button>
             <Button size="lg" variant="outline" className="flex-1">
