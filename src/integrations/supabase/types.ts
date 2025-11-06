@@ -376,7 +376,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_caregivers: {
+        Row: {
+          id: string
+          user_id: string
+          bio: string | null
+          city: string | null
+          state: string | null
+          experience_years: number | null
+          home_type: string | null
+          has_yard: boolean | null
+          max_pets_at_once: number | null
+          price_per_day: number | null
+          price_per_walk: number | null
+          available_services: Database["public"]["Enums"]["service_type"][] | null
+          accepts_pet_sizes: Database["public"]["Enums"]["pet_size"][] | null
+          verified: boolean | null
+          rating: number | null
+          total_reviews: number | null
+          full_name: string
+          avatar_url: string | null
+        }
+        Relationships: []
+      }
+      public_caregiver_profiles: {
+        Row: {
+          id: string
+          full_name: string
+          avatar_url: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
