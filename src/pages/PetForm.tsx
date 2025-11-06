@@ -15,11 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "@/i18n/i18n";
 
 const PetForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const { t } = useTranslation();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -67,7 +69,7 @@ const PetForm = () => {
       });
     } catch (error) {
       console.error("Error loading pet:", error);
-      toast.error("Erro ao carregar dados do pet");
+      toast.error(t("petform_toast_load_error"));
     }
   };
 
@@ -77,7 +79,7 @@ const PetForm = () => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado");
+      if (!user) throw new Error(t("common_not_authenticated"));
 
       const petData = {
         name: formData.name,
@@ -101,20 +103,20 @@ const PetForm = () => {
           .eq("id", id);
 
         if (error) throw error;
-        toast.success("Pet atualizado com sucesso!");
+        toast.success(t("petform_toast_update_success"));
       } else {
         const { error } = await supabase
           .from("pets")
           .insert([petData]);
 
         if (error) throw error;
-        toast.success("Pet cadastrado com sucesso!");
+        toast.success(t("petform_toast_create_success"));
       }
 
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error saving pet:", error);
-      toast.error(error.message || "Erro ao salvar pet");
+      toast.error(error.message || t("petform_toast_save_error"));
     } finally {
       setLoading(false);
     }
@@ -129,17 +131,17 @@ const PetForm = () => {
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
+          {t("common_back")}
         </Button>
 
         <Card className="p-6">
           <h1 className="text-3xl font-bold mb-6">
-            {isEdit ? "Editar Pet" : "Adicionar Novo Pet"}
+            {isEdit ? t("petform_title_edit") : t("petform_title_new")}
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="name">Nome do Pet *</Label>
+              <Label htmlFor="name">{t("petform_name_label")}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -150,25 +152,25 @@ const PetForm = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="species">Espécie *</Label>
+                <Label htmlFor="species">{t("petform_species_label")}</Label>
                 <Select
                   value={formData.species}
                   onValueChange={(value) => setFormData({ ...formData, species: value })}
                   required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
+                    <SelectValue placeholder={t("petform_select_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Cachorro">Cachorro</SelectItem>
-                    <SelectItem value="Gato">Gato</SelectItem>
-                    <SelectItem value="Outro">Outro</SelectItem>
+                    <SelectItem value="Cachorro">{t("species_dog")}</SelectItem>
+                    <SelectItem value="Gato">{t("species_cat")}</SelectItem>
+                    <SelectItem value="Outro">{t("species_other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="breed">Raça</Label>
+                <Label htmlFor="breed">{t("petform_breed_label")}</Label>
                 <Input
                   id="breed"
                   value={formData.breed}
@@ -179,7 +181,7 @@ const PetForm = () => {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="age">Idade (anos)</Label>
+                <Label htmlFor="age">{t("petform_age_label")}</Label>
                 <Input
                   id="age"
                   type="number"
@@ -189,25 +191,25 @@ const PetForm = () => {
               </div>
 
               <div>
-                <Label htmlFor="size">Porte</Label>
+                <Label htmlFor="size">{t("petform_size_label")}</Label>
                 <Select
                   value={formData.size}
                   onValueChange={(value) => setFormData({ ...formData, size: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
+                    <SelectValue placeholder={t("petform_select_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pequeno">Pequeno</SelectItem>
-                    <SelectItem value="medio">Médio</SelectItem>
-                    <SelectItem value="grande">Grande</SelectItem>
-                    <SelectItem value="gigante">Gigante</SelectItem>
+                    <SelectItem value="pequeno">{t("size_small")}</SelectItem>
+                    <SelectItem value="medio">{t("size_medium")}</SelectItem>
+                    <SelectItem value="grande">{t("size_large")}</SelectItem>
+                    <SelectItem value="gigante">{t("size_giant")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="weight">Peso (kg)</Label>
+                <Label htmlFor="weight">{t("petform_weight_label")}</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -219,17 +221,17 @@ const PetForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="personality">Temperamento</Label>
+              <Label htmlFor="personality">{t("petform_personality_label")}</Label>
               <Input
                 id="personality"
-                placeholder="Ex: Calmo, brincalhão, medroso..."
+                placeholder={t("petform_personality_placeholder")}
                 value={formData.personality}
                 onChange={(e) => setFormData({ ...formData, personality: e.target.value })}
               />
             </div>
 
             <div>
-              <Label htmlFor="allergies">Alergias</Label>
+              <Label htmlFor="allergies">{t("petform_allergies_label")}</Label>
               <Textarea
                 id="allergies"
                 value={formData.allergies}
@@ -238,10 +240,10 @@ const PetForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="health_notes">Observações de Saúde</Label>
+              <Label htmlFor="health_notes">{t("petform_health_label")}</Label>
               <Textarea
                 id="health_notes"
-                placeholder="Medicações, condições especiais..."
+                placeholder={t("petform_health_placeholder")}
                 value={formData.health_notes}
                 onChange={(e) => setFormData({ ...formData, health_notes: e.target.value })}
               />
@@ -255,7 +257,7 @@ const PetForm = () => {
                   onChange={(e) => setFormData({ ...formData, vaccinated: e.target.checked })}
                   className="h-4 w-4"
                 />
-                <span>Vacinado</span>
+                <span>{t("petform_vaccinated")}</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -265,12 +267,12 @@ const PetForm = () => {
                   onChange={(e) => setFormData({ ...formData, neutered: e.target.checked })}
                   className="h-4 w-4"
                 />
-                <span>Castrado</span>
+                <span>{t("petform_neutered")}</span>
               </label>
             </div>
 
             <Button type="submit" size="lg" className="w-full" disabled={loading}>
-              {loading ? "Salvando..." : isEdit ? "Atualizar Pet" : "Cadastrar Pet"}
+              {loading ? t("petform_submit_saving") : isEdit ? t("petform_submit_update") : t("petform_submit_create")}
             </Button>
           </form>
         </Card>

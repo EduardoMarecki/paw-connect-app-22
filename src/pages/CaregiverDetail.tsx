@@ -14,7 +14,6 @@ type CaregiverDetail = {
   bio: string | null;
   city: string | null;
   state: string | null;
-  address: string | null;
   experience_years: number | null;
   home_type: string | null;
   has_yard: boolean | null;
@@ -26,11 +25,8 @@ type CaregiverDetail = {
   available_services: string[] | null;
   accepts_pet_sizes: string[] | null;
   verified: boolean | null;
-  profiles: {
-    full_name: string;
-    avatar_url: string | null;
-    phone: string | null;
-  };
+  full_name: string;
+  avatar_url: string | null;
 };
 
 const CaregiverDetail = () => {
@@ -46,26 +42,16 @@ const CaregiverDetail = () => {
 
   const loadCaregiver = async () => {
     try {
-      // SECURITY: Only select safe public fields (no phone, address)
+      // SECURITY: Read from safe public view (no phone, no full address)
       const { data, error } = await supabase
-        .from("pet_caregivers")
-        .select("id, user_id, bio, city, state, experience_years, verified, accepts_pet_sizes, has_yard, max_pets_at_once, price_per_day, price_per_walk, available_services, rating, total_reviews, home_type, profiles!inner(id, full_name, avatar_url)")
+        .from("public_caregivers")
+        .select("id, user_id, bio, city, state, experience_years, verified, accepts_pet_sizes, has_yard, max_pets_at_once, price_per_day, price_per_walk, available_services, rating, total_reviews, home_type, full_name, avatar_url")
         .eq("id", id)
         .maybeSingle();
 
       if (error) throw error;
 
-      // Fetch profile separately
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url, phone")
-        .eq("id", data.user_id)
-        .single();
-
-      setCaregiver({
-        ...data,
-        profiles: profileData || { full_name: "", avatar_url: null, phone: null }
-      } as any);
+      setCaregiver(data as any);
 
       // Load reviews
       const { data: reviewsData } = await supabase
@@ -121,15 +107,15 @@ const CaregiverDetail = () => {
         <Card className="p-8">
           <div className="flex flex-col md:flex-row gap-8 mb-8">
             <div className="flex-shrink-0">
-              {caregiver.profiles.avatar_url ? (
+              {caregiver.avatar_url ? (
                 <img
-                  src={caregiver.profiles.avatar_url}
-                  alt={caregiver.profiles.full_name}
+                  src={caregiver.avatar_url}
+                  alt={caregiver.full_name}
                   className="w-32 h-32 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center text-4xl">
-                  {caregiver.profiles.full_name.charAt(0)}
+                  {caregiver.full_name.charAt(0)}
                 </div>
               )}
             </div>
@@ -138,7 +124,7 @@ const CaregiverDetail = () => {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold mb-2">
-                    {caregiver.profiles.full_name}
+                    {caregiver.full_name}
                   </h1>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="h-4 w-4" />

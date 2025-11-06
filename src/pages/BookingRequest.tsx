@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useTranslation } from "@/i18n/i18n";
 
 type Pet = {
   id: string;
@@ -39,6 +40,7 @@ export default function BookingRequest() {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [instructions, setInstructions] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
@@ -85,7 +87,7 @@ export default function BookingRequest() {
       }
     } catch (error) {
       console.error("Error loading data:", error);
-      toast.error("Erro ao carregar dados");
+      toast.error(t("booking_toast_load_error"));
     } finally {
       setLoading(false);
     }
@@ -106,7 +108,7 @@ export default function BookingRequest() {
     e.preventDefault();
     
     if (!selectedPet || !serviceType || !startDate || !endDate) {
-      toast.error("Preencha todos os campos obrigatórios");
+      toast.error(t("booking_toast_required_fields"));
       return;
     }
 
@@ -135,11 +137,11 @@ export default function BookingRequest() {
 
       if (error) throw error;
 
-      toast.success("Solicitação enviada com sucesso!");
+      toast.success(t("booking_toast_success"));
       navigate("/dashboard");
     } catch (error) {
       console.error("Error creating booking:", error);
-      toast.error("Erro ao enviar solicitação");
+      toast.error(t("booking_toast_error"));
     } finally {
       setSubmitting(false);
     }
@@ -158,17 +160,17 @@ export default function BookingRequest() {
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Erro</CardTitle>
+            <CardTitle>{t("booking_error_title")}</CardTitle>
             <CardDescription>
               {pets.length === 0 
-                ? "Você precisa cadastrar um pet antes de solicitar serviços"
-                : "Cuidador não encontrado"}
+                ? t("booking_need_pet")
+                : t("booking_caregiver_not_found")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate(pets.length === 0 ? "/pet/form" : "/search")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {pets.length === 0 ? "Cadastrar Pet" : "Voltar"}
+              {pets.length === 0 ? t("petform_submit_create") : t("common_back")}
             </Button>
           </CardContent>
         </Card>
@@ -180,23 +182,23 @@ export default function BookingRequest() {
     <div className="container mx-auto px-4 py-8">
       <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar
+        {t("common_back")}
       </Button>
 
       <Card>
         <CardHeader>
-          <CardTitle>Solicitar Serviço</CardTitle>
+          <CardTitle>{t("booking_request_title")}</CardTitle>
           <CardDescription>
-            Preencha os detalhes da solicitação para {caregiver.profiles.full_name}
+            {t("booking_request_desc_prefix")} {caregiver.profiles.full_name}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="pet">Selecione o Pet *</Label>
+              <Label htmlFor="pet">{t("booking_select_pet_label")}</Label>
               <Select value={selectedPet} onValueChange={setSelectedPet} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Escolha um pet" />
+                  <SelectValue placeholder={t("booking_select_pet_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {pets.map((pet) => (
@@ -209,18 +211,18 @@ export default function BookingRequest() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="service">Tipo de Serviço *</Label>
+              <Label htmlFor="service">{t("booking_select_service_label")}</Label>
               <Select value={serviceType} onValueChange={setServiceType} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Escolha o serviço" />
+                  <SelectValue placeholder={t("booking_select_service_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {caregiver.available_services?.map((service) => (
                     <SelectItem key={service} value={service}>
-                      {service === "hospedagem" && "Hospedagem"}
-                      {service === "passeio" && "Passeio"}
-                      {service === "visita_diaria" && "Visita Diária"}
-                      {service === "creche" && "Creche"}
+                      {service === "hospedagem" && t("service_hospedagem")}
+                      {service === "passeio" && t("service_passeio")}
+                      {service === "visita_diaria" && t("service_visita_diaria")}
+                      {service === "creche" && t("service_creche")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -229,7 +231,7 @@ export default function BookingRequest() {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Data Início *</Label>
+                <Label>{t("booking_date_start_label")}</Label>
                 <Calendar
                   mode="single"
                   selected={startDate}
@@ -240,7 +242,7 @@ export default function BookingRequest() {
               </div>
 
               <div className="space-y-2">
-                <Label>Data Fim *</Label>
+                <Label>{t("booking_date_end_label")}</Label>
                 <Calendar
                   mode="single"
                   selected={endDate}
@@ -252,12 +254,12 @@ export default function BookingRequest() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="instructions">Instruções Especiais</Label>
+              <Label htmlFor="instructions">{t("booking_instructions_label")}</Label>
               <Textarea
                 id="instructions"
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Informações importantes sobre seu pet, medicações, horários, etc."
+                placeholder={t("booking_instructions_placeholder")}
                 rows={4}
               />
             </div>
@@ -265,7 +267,7 @@ export default function BookingRequest() {
             {startDate && endDate && serviceType && (
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-lg font-semibold">
-                  Valor Total: R$ {calculatePrice().toFixed(2)}
+                  {t("booking_total_label")}: R$ {calculatePrice().toFixed(2)}
                 </p>
               </div>
             )}
@@ -274,10 +276,10 @@ export default function BookingRequest() {
               {submitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enviando...
+                  {t("booking_submit_loading")}
                 </>
               ) : (
-                "Enviar Solicitação"
+                t("booking_submit")
               )}
             </Button>
           </form>

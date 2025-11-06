@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, PawPrint, LogOut, Calendar, Clock, MessageCircle, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
+import { useTranslation } from "@/i18n/i18n";
 
 type Pet = Tables<"pets">;
 type Booking = Tables<"bookings"> & {
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [userProfile, setUserProfile] = useState<{ full_name: string } | null>(null);
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     checkAuth();
@@ -87,7 +89,7 @@ const Dashboard = () => {
       setBookings([...(tutorBookings || []), ...caregiverBookings]);
     } catch (error) {
       console.error("Error loading data:", error);
-      toast.error("Erro ao carregar dados");
+      toast.error(t("booking_toast_load_error"));
     } finally {
       setLoading(false);
     }
@@ -112,19 +114,19 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PawPrint className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">PetConnect</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("brand")}</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-muted-foreground">Olá, {userProfile?.full_name}</span>
-            <Button variant="outline" size="sm" onClick={() => navigate("/caregiver/profile")}>
-              Perfil Cuidador
+            <span className="text-muted-foreground">{t("dashboard_hello")}, {userProfile?.full_name}</span>
+            <Button variant="outline" size="sm" onClick={() => navigate("/caregiver/profile")}>{/* caregiver profile */}
+              {t("dashboard_caregiver_profile")}
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate("/search")}>
-              Buscar Cuidadores
+              {t("dashboard_search_caregivers")}
             </Button>
             <Button variant="ghost" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
-              Sair
+              {t("dashboard_logout")}
             </Button>
           </div>
         </div>
@@ -133,29 +135,29 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="pets" className="space-y-8">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="pets">Meus Pets</TabsTrigger>
-            <TabsTrigger value="bookings">Agendamentos</TabsTrigger>
+            <TabsTrigger value="pets">{t("dashboard_tabs_pets")}</TabsTrigger>
+            <TabsTrigger value="bookings">{t("dashboard_tabs_bookings")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pets">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-foreground">Meus Pets</h2>
+              <h2 className="text-3xl font-bold text-foreground">{t("dashboard_tabs_pets")}</h2>
               <Button onClick={() => navigate("/pets/new")} size="lg">
                 <Plus className="h-5 w-5 mr-2" />
-                Adicionar Pet
+                {t("dashboard_add_pet")}
               </Button>
             </div>
 
         {pets.length === 0 ? (
           <Card className="p-12 text-center">
             <PawPrint className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">Nenhum pet cadastrado</h3>
+            <h3 className="text-xl font-semibold mb-2">{t("dashboard_no_pets")}</h3>
             <p className="text-muted-foreground mb-6">
-              Comece adicionando informações sobre seu pet para encontrar cuidadores
+              {t("dashboard_no_pets_desc")}
             </p>
             <Button onClick={() => navigate("/pets/new")}>
               <Plus className="h-5 w-5 mr-2" />
-              Adicionar Primeiro Pet
+              {t("dashboard_add_first_pet")}
             </Button>
           </Card>
         ) : (
@@ -172,15 +174,15 @@ const Dashboard = () => {
                 <h3 className="text-xl font-bold mb-2">{pet.name}</h3>
                 <div className="space-y-1 text-sm text-muted-foreground mb-4">
                   <p>{pet.species} {pet.breed && `• ${pet.breed}`}</p>
-                  {pet.age && <p>{pet.age} anos</p>}
-                  {pet.size && <p>Porte: {pet.size}</p>}
+                  {pet.age && <p>{pet.age} {t("dashboard_years")}</p>}
+                  {pet.size && <p>{t("dashboard_size_label")}: {pet.size}</p>}
                 </div>
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => navigate(`/pets/${pet.id}/edit`)}
                 >
-                  Editar
+                  {t("dashboard_edit")}
                 </Button>
               </Card>
             ))}
@@ -190,19 +192,19 @@ const Dashboard = () => {
 
           <TabsContent value="bookings">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-foreground mb-2">Agendamentos</h2>
-              <p className="text-muted-foreground">Gerencie suas solicitações de serviço</p>
+              <h2 className="text-3xl font-bold text-foreground mb-2">{t("dashboard_bookings_title")}</h2>
+              <p className="text-muted-foreground">{t("dashboard_bookings_desc")}</p>
             </div>
 
             {bookings.length === 0 ? (
               <Card className="p-12 text-center">
                 <Calendar className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum agendamento</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("dashboard_no_bookings")}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Você ainda não tem agendamentos
+                  {t("dashboard_no_bookings_desc")}
                 </p>
                 <Button onClick={() => navigate("/search")}>
-                  Buscar Cuidadores
+                  {t("dashboard_search_caregivers")}
                 </Button>
               </Card>
             ) : (
@@ -212,10 +214,10 @@ const Dashboard = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-bold mb-1">
-                          {booking.service_type === "hospedagem" && "Hospedagem"}
-                          {booking.service_type === "passeio" && "Passeio"}
-                          {booking.service_type === "visita_diaria" && "Visita Diária"}
-                          {booking.service_type === "creche" && "Creche"}
+                          {booking.service_type === "hospedagem" && t("service_hospedagem")}
+                          {booking.service_type === "passeio" && t("service_passeio")}
+                          {booking.service_type === "visita_diaria" && t("service_visita_diaria")}
+                          {booking.service_type === "creche" && t("service_creche")}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           Pet: {booking.pet?.name || "N/A"}
@@ -229,10 +231,10 @@ const Dashboard = () => {
                           "destructive"
                         }
                       >
-                        {booking.status === "pendente" && "Pendente"}
-                        {booking.status === "confirmado" && "Confirmado"}
-                        {booking.status === "concluido" && "Concluído"}
-                        {booking.status === "cancelado" && "Cancelado"}
+                        {booking.status === "pendente" && t("status_pendente")}
+                        {booking.status === "confirmado" && t("status_confirmado")}
+                        {booking.status === "concluido" && t("status_concluido")}
+                        {booking.status === "cancelado" && t("status_cancelado")}
                       </Badge>
                     </div>
 
@@ -240,13 +242,13 @@ const Dashboard = () => {
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {new Date(booking.start_date).toLocaleDateString("pt-BR")}
+                          {new Date(booking.start_date).toLocaleDateString(locale)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          até {new Date(booking.end_date).toLocaleDateString("pt-BR")}
+                          {t("dashboard_until")} {new Date(booking.end_date).toLocaleDateString(locale)}
                         </span>
                       </div>
                     </div>

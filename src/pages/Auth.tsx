@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PawPrint, ArrowLeft } from "lucide-react";
+import { PawPrint, ArrowLeft, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/i18n/i18n";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -19,6 +20,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +45,15 @@ export default function Auth() {
       if (error) throw error;
 
       toast({
-        title: "Conta criada!",
-        description: "Verifique seu email para confirmar o cadastro.",
+        title: t("signup_success_title"),
+        description: t("signup_success_desc"),
       });
+
+      // Navega para a tela de verificação com o email do usuário
+      navigate("/auth/verify-email", { state: { email } });
     } catch (error: any) {
       toast({
-        title: "Erro ao criar conta",
+        title: t("signup_error_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -67,17 +72,34 @@ export default function Auth() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        const msg = String(error.message || "").toLowerCase();
+        if (msg.includes("confirm")) {
+          toast({
+            title: t("login_unconfirmed_title"),
+            description: t("login_unconfirmed_desc"),
+            variant: "destructive",
+          });
+          navigate("/auth/verify-email", { state: { email } });
+        } else {
+          toast({
+            title: t("login_error_title"),
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+        return;
+      }
 
       toast({
-        title: "Bem-vindo!",
-        description: "Login realizado com sucesso.",
+        title: t("login_success_title"),
+        description: t("login_success_desc"),
       });
       
       navigate("/dashboard");
     } catch (error: any) {
       toast({
-        title: "Erro ao fazer login",
+        title: t("login_error_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -91,7 +113,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <Link to="/" className="inline-flex items-center gap-2 mb-8 text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />
-          Voltar ao início
+          {t("verify_back_to_auth")}
         </Link>
 
         <Card className="border-2 shadow-xl">
@@ -101,22 +123,22 @@ export default function Auth() {
                 <PawPrint className="h-10 w-10 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Bem-vindo ao PetConnect</CardTitle>
+            <CardTitle className="text-2xl">{t("auth_title")}</CardTitle>
             <CardDescription>
-              Crie sua conta ou faça login para continuar
+              {t("auth_description")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+                <TabsTrigger value="login">{t("tabs_login")}</TabsTrigger>
+                <TabsTrigger value="signup">{t("tabs_signup")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="login-email">{t("login_email_label")}</Label>
                     <Input
                       id="login-email"
                       type="email"
@@ -127,7 +149,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Senha</Label>
+                    <Label htmlFor="login-password">{t("login_password_label")}</Label>
                     <Input
                       id="login-password"
                       type="password"
@@ -138,15 +160,58 @@ export default function Auth() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Entrando..." : "Entrar"}
+                    {loading ? t("login_loading") : t("login_submit")}
                   </Button>
+
+                  <div className="flex items-center gap-2 text-sm pt-2">
+                    <span className="text-muted-foreground">{t("login_resend_hint")}</span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!email) {
+                          toast({
+                            title: t("verify_error_title"),
+                            description: t("verify_error_no_email"),
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        setLoading(true);
+                        try {
+                          const redirectUrl = `${window.location.origin}/`;
+                          const { error } = await supabase.auth.resend({
+                            type: "signup",
+                            email,
+                            options: { emailRedirectTo: redirectUrl },
+                          });
+                          if (error) throw error;
+                          toast({
+                            title: t("login_resend_success_title"),
+                            description: t("login_resend_success_desc"),
+                          });
+                        } catch (err: any) {
+                          toast({
+                            title: t("login_resend_error_title"),
+                            description: err.message,
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      className="inline-flex items-center text-primary hover:underline"
+                    >
+                      <Mail className="h-3.5 w-3.5 mr-1" />
+                      {t("login_resend_button")}
+                    </button>
+                  </div>
                 </form>
               </TabsContent>
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome Completo</Label>
+                    <Label htmlFor="signup-name">{t("signup_name_label")}</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -157,7 +222,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Telefone</Label>
+                    <Label htmlFor="signup-phone">{t("signup_phone_label")}</Label>
                     <Input
                       id="signup-phone"
                       type="tel"
@@ -168,7 +233,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t("signup_email_label")}</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -179,7 +244,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
+                    <Label htmlFor="signup-password">{t("signup_password_label")}</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -191,7 +256,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Eu sou:</Label>
+                    <Label>{t("role_label")}</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
@@ -204,8 +269,8 @@ export default function Auth() {
                       >
                         <div className="text-center">
                           <div className="text-2xl mb-1">🐕</div>
-                          <div>Tutor</div>
-                          <div className="text-xs opacity-70">Tenho pets</div>
+                          <div>{t("role_tutor_title")}</div>
+                          <div className="text-xs opacity-70">{t("role_tutor_sub")}</div>
                         </div>
                       </button>
                       <button
@@ -219,14 +284,14 @@ export default function Auth() {
                       >
                         <div className="text-center">
                           <div className="text-2xl mb-1">❤️</div>
-                          <div>Cuidador</div>
-                          <div className="text-xs opacity-70">Cuido de pets</div>
+                          <div>{t("role_caregiver_title")}</div>
+                          <div className="text-xs opacity-70">{t("role_caregiver_sub")}</div>
                         </div>
                       </button>
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Criando conta..." : "Criar Conta"}
+                    {loading ? t("signup_loading") : t("signup_submit")}
                   </Button>
                 </form>
               </TabsContent>
